@@ -232,23 +232,23 @@ export default function AttendancePage() {
               const currentStatus = records[sub.id]
               const isSaving = saving === sub.id
               return (
-                <div key={sub.id} className="glass rounded-xl p-3 flex items-center justify-between"
+                <div key={sub.id} className="glass rounded-xl p-3 flex items-center justify-between gap-3"
                   style={{ borderLeft: `2px solid ${sub.color}50` }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: sub.color }} />
-                    <span className="text-sm text-slate-400">{sub.subject_name}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: sub.color }} />
+                    <span className="text-sm text-slate-400 truncate">{sub.subject_name}</span>
                   </div>
                   {isFuture ? (
-                    <span className="text-xs text-slate-600 italic">Future date</span>
+                    <span className="text-xs text-slate-600 italic flex-shrink-0">Future date</span>
                   ) : (
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 flex-shrink-0">
                       {isSaving ? (
                         <div className="w-4 h-4 border-2 border-slate-600 border-t-green-400 rounded-full animate-spin" />
                       ) : (
                         <>
-                          <StatusBtn active={currentStatus === 'present'} onClick={() => markAttendance(sub.id, 'present')} color="#4ade80" icon={<Check className="w-3 h-3" />} label="Present" />
-                          <StatusBtn active={currentStatus === 'absent'} onClick={() => markAttendance(sub.id, 'absent')} color="#f87171" icon={<X className="w-3 h-3" />} label="Absent" />
-                          <StatusBtn active={currentStatus === 'cancelled'} onClick={() => markAttendance(sub.id, 'cancelled')} color="#64748b" icon={<Ban className="w-3 h-3" />} label="Cancelled" />
+                          <IconBtn active={currentStatus === 'present'} onClick={() => markAttendance(sub.id, 'present')} color="#4ade80" icon={<Check className="w-4 h-4" />} label="Present" />
+                          <IconBtn active={currentStatus === 'absent'} onClick={() => markAttendance(sub.id, 'absent')} color="#f87171" icon={<X className="w-4 h-4" />} label="Absent" />
+                          <IconBtn active={currentStatus === 'cancelled'} onClick={() => markAttendance(sub.id, 'cancelled')} color="#64748b" icon={<Ban className="w-4 h-4" />} label="Cancelled" />
                         </>
                       )}
                     </div>
@@ -278,6 +278,24 @@ function StatusBtn({ active, onClick, color, icon, label }: any) {
     >
       {icon}
       <span className="text-xs sm:hidden font-medium">{label}</span>
+    </button>
+  )
+}
+
+function IconBtn({ active, onClick, color, icon, label }: any) {
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      className="w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-150 active:scale-90"
+      style={{
+        background: active ? color + '22' : 'rgba(255,255,255,0.04)',
+        border: `1px solid ${active ? color + '50' : 'rgba(255,255,255,0.07)'}`,
+        color: active ? color : '#475569',
+        transform: active ? 'scale(1.08)' : undefined,
+      }}
+    >
+      {icon}
     </button>
   )
 }
