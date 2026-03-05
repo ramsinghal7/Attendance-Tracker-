@@ -150,7 +150,7 @@ export default function AttendancePage() {
         <div className="space-y-3">
           {todayClasses.map((cls, i) => {
             const currentStatus = records[cls.id]
-            const isSaving = saving === cls.idnp
+            const isSaving = saving === cls.id
             return (
               <motion.div
                 key={cls.id}
@@ -213,7 +213,7 @@ export default function AttendancePage() {
                       }}>
                         {currentStatus}
                       </span>
-                      {currentStatus === 'cancelled' && " — won't affect your attendance count"}
+                      {currentStatus === 'cancelled' && " \u2014 won\u0027t affect your attendance count"}
                     </p>
                   </motion.div>
                 )}

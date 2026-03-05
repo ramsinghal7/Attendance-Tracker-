@@ -142,7 +142,7 @@ export default function DashboardClient({ stats, overall, todayClasses, records,
         <div className="space-y-6">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-slate-300">Today's Classes</h2>
+              <h2 className="text-sm font-semibold text-slate-300">Today&apos;s Classes</h2>
               <Link href="/attendance" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">Mark →</Link>
             </div>
             <div className="space-y-2">
