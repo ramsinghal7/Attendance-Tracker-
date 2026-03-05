@@ -61,11 +61,11 @@ export default function SimulatorPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <FlaskConical className="w-6 h-6 text-purple-400" />
+          <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
+            <FlaskConical className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
             Simulator
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">What-if scenario planner</p>
@@ -132,7 +132,7 @@ export default function SimulatorPage() {
                   )}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     {/* Attend counter */}
                     <div>

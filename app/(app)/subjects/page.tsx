@@ -102,19 +102,20 @@ export default function SubjectsPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Subjects</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Manage your enrolled subjects</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Subjects</h1>
+          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">Manage your enrolled subjects</p>
         </div>
         <button
           onClick={() => { setShowForm(true); setEditId(null); setForm({ subject_name: '', color: COLOR_OPTIONS[0], initial_attended: 0, initial_missed: 0 }) }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-medium transition-all"
           style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', color: '#4ade80' }}
         >
           <Plus className="w-4 h-4" />
-          Add Subject
+          <span className="hidden sm:inline">Add Subject</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
 
@@ -221,7 +222,7 @@ export default function SubjectsPage() {
       </AnimatePresence>
 
       {loading ? (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {[1,2,3,4].map(i => (
             <div key={i} className="glass rounded-2xl p-5 animate-pulse">
               <div className="h-5 w-32 bg-slate-800 rounded mb-3" />
@@ -237,7 +238,7 @@ export default function SubjectsPage() {
           <p className="text-slate-600 text-sm">Add your first subject to start tracking</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {subjects.map((sub, i) => {
             const { attended, total, percentage } = getSubjectStats(sub.id)
             const status = calcStatus(percentage)
@@ -265,7 +266,7 @@ export default function SubjectsPage() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openEdit(sub)}
                       className="p-1.5 rounded-lg text-slate-500 hover:text-slate-300"
                       style={{ background: 'rgba(255,255,255,0.05)' }}>

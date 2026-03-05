@@ -4,11 +4,30 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   background: #060910;
   min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safe area support for notch devices */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 ::-webkit-scrollbar {
@@ -64,4 +83,26 @@ body {
 @keyframes badgePulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4); }
   50% { box-shadow: 0 0 0 6px rgba(248, 113, 113, 0); }
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  body {
+    scrollbar-width: none;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .glass-hover:hover {
+    transform: none;
+  }
+  .glass-hover:active {
+    background: rgba(17, 24, 42, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
+  }
 }

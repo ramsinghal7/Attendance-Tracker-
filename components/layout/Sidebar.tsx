@@ -8,9 +8,8 @@ import toast from 'react-hot-toast'
 import {
   LayoutDashboard, BookOpen, Calendar,
   ClipboardList, FlaskConical, LogOut,
-  GraduationCap, Menu, X,
+  GraduationCap,
 } from 'lucide-react'
-import { useState } from 'react'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -24,7 +23,6 @@ export default function Sidebar({ userName }: { userName?: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
-  const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -59,7 +57,6 @@ export default function Sidebar({ userName }: { userName?: string }) {
             >
               <Link
                 href={href}
-                onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
                 style={{
                   background: active ? 'rgba(74,222,128,0.08)' : 'transparent',
@@ -110,6 +107,7 @@ export default function Sidebar({ userName }: { userName?: string }) {
 
   return (
     <>
+      {/* Desktop sidebar */}
       <aside
         className="hidden lg:flex flex-col w-56 h-screen sticky top-0 flex-shrink-0"
         style={{
@@ -120,54 +118,47 @@ export default function Sidebar({ userName }: { userName?: string }) {
         <SidebarContent />
       </aside>
 
-      <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3"
+      {/* Mobile bottom navigation */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 safe-bottom"
         style={{
-          background: 'rgba(6,9,16,0.95)',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          background: 'rgba(6,9,16,0.97)',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
           backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
         }}
       >
-        <div className="flex items-center gap-2">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(74,222,128,0.12)' }}
-          >
-            <GraduationCap className="w-3.5 h-3.5 text-green-400" />
-          </div>
-          <span className="text-sm font-bold text-white">Attendance Tracker</span>
+        <div className="flex items-center justify-around px-2 pt-2 pb-1">
+          {navItems.map(({ label, href, icon: Icon }) => {
+            const active = pathname === href || pathname.startsWith(href + '/')
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl min-w-0 transition-all duration-200 relative"
+              >
+                {active && (
+                  <motion.div
+                    layoutId="bottomNavActive"
+                    className="absolute -top-1 w-6 h-0.5 rounded-full bg-green-400"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <Icon
+                  className="w-5 h-5 flex-shrink-0"
+                  style={{ color: active ? '#4ade80' : '#475569' }}
+                />
+                <span
+                  className="text-[10px] font-medium leading-tight"
+                  style={{ color: active ? '#4ade80' : '#475569' }}
+                >
+                  {label}
+                </span>
+              </Link>
+            )
+          })}
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-1.5 rounded-lg text-slate-400"
-          style={{ background: 'rgba(255,255,255,0.05)' }}
-        >
-          {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-        </button>
-      </div>
-
-      {mobileOpen && (
-        <motion.div
-          initial={{ opacity: 0, x: -300 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -300 }}
-          className="lg:hidden fixed inset-0 z-40"
-        >
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div
-            className="absolute left-0 top-0 bottom-0 w-64"
-            style={{
-              background: 'rgba(8,12,20,0.98)',
-              borderRight: '1px solid rgba(255,255,255,0.08)',
-            }}
-          >
-            <SidebarContent />
-          </div>
-        </motion.div>
-      )}
+      </nav>
     </>
   )
 }

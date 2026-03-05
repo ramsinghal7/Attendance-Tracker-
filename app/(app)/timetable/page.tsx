@@ -67,19 +67,20 @@ export default function TimetablePage() {
   }, {} as Record<string, TimetableEntry[]>)
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Weekly Timetable</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Set up once — repeats every week automatically</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Weekly Timetable</h1>
+          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">Set up once — repeats every week automatically</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-medium"
           style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', color: '#4ade80' }}
         >
           <Plus className="w-4 h-4" />
-          Add Class
+          <span className="hidden sm:inline">Add Class</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
 
@@ -225,7 +226,7 @@ export default function TimetablePage() {
                         <span className="text-slate-500 text-xs font-mono">{entry.start_time}–{entry.end_time}</span>
                         <button
                           onClick={() => handleDelete(entry.id)}
-                          className="opacity-0 group-hover/entry:opacity-100 transition-opacity ml-1 text-slate-600 hover:text-red-400"
+                          className="sm:opacity-0 sm:group-hover/entry:opacity-100 transition-opacity ml-1 text-slate-600 hover:text-red-400 p-1"
                         >
                           <X className="w-3 h-3" />
                         </button>

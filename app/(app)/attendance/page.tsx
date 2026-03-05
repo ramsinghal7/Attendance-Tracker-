@@ -82,9 +82,9 @@ export default function AttendancePage() {
   const presentCount = Object.values(records).filter(s => s === 'present').length
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Mark Attendance</h1>
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-white">Mark Attendance</h1>
         <p className="text-slate-500 text-sm mt-0.5">Track your daily lecture presence</p>
       </div>
 
@@ -167,7 +167,7 @@ export default function AttendancePage() {
                   }`,
                 }}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-3">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0"
@@ -186,14 +186,14 @@ export default function AttendancePage() {
                   {isFuture ? (
                     <span className="text-xs text-slate-600 italic">Future date</span>
                   ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
                       {isSaving ? (
                         <div className="w-4 h-4 border-2 border-slate-600 border-t-green-400 rounded-full animate-spin" />
                       ) : (
                         <>
-                          <StatusBtn active={currentStatus === 'present'} onClick={() => markAttendance(cls.subject_id, 'present',cls.id)} color="#4ade80" icon={<Check className="w-3.5 h-3.5" />} label="Present" />
-                          <StatusBtn active={currentStatus === 'absent'} onClick={() => markAttendance(cls.subject_id, 'absent',cls.id)} color="#f87171" icon={<X className="w-3.5 h-3.5" />} label="Absent" />
-                          <StatusBtn active={currentStatus === 'cancelled'} onClick={() => markAttendance(cls.subject_id, 'cancelled',cls.id)} color="#64748b" icon={<Ban className="w-3.5 h-3.5" />} label="Cancelled" />
+                          <StatusBtn active={currentStatus === 'present'} onClick={() => markAttendance(cls.subject_id, 'present',cls.id)} color="#4ade80" icon={<Check className="w-4 h-4" />} label="Present" />
+                          <StatusBtn active={currentStatus === 'absent'} onClick={() => markAttendance(cls.subject_id, 'absent',cls.id)} color="#f87171" icon={<X className="w-4 h-4" />} label="Absent" />
+                          <StatusBtn active={currentStatus === 'cancelled'} onClick={() => markAttendance(cls.subject_id, 'cancelled',cls.id)} color="#64748b" icon={<Ban className="w-4 h-4" />} label="Cancelled" />
                         </>
                       )}
                     </div>
@@ -268,7 +268,7 @@ function StatusBtn({ active, onClick, color, icon, label }: any) {
     <button
       onClick={onClick}
       title={label}
-      className="p-2 rounded-lg transition-all duration-150 active:scale-90"
+      className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 p-2.5 sm:p-2 rounded-lg transition-all duration-150 active:scale-90"
       style={{
         background: active ? color + '20' : 'rgba(255,255,255,0.04)',
         border: `1px solid ${active ? color + '40' : 'rgba(255,255,255,0.07)'}`,
@@ -277,6 +277,7 @@ function StatusBtn({ active, onClick, color, icon, label }: any) {
       }}
     >
       {icon}
+      <span className="text-xs sm:hidden font-medium">{label}</span>
     </button>
   )
 }

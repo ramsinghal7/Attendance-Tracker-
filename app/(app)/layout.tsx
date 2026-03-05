@@ -23,10 +23,10 @@ export default async function AppLayout({
   const userName = profile?.name || user.email?.split('@')[0] || 'Student'
 
   return (
-    <div className="flex min-h-screen bg-[#060910]">
+    <div className="flex min-h-screen min-h-dvh bg-[#060910]">
       <Sidebar userName={userName} />
-      <main className="flex-1 min-w-0 lg:pt-0 pt-14">
-        <div className="gradient-bg min-h-screen">
+      <main className="flex-1 min-w-0">
+        <div className="gradient-bg min-h-screen min-h-dvh pb-20 lg:pb-0">
           {children}
         </div>
       </main>
