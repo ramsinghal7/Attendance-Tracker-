@@ -15,11 +15,14 @@ export default function SubjectsPage() {
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [editStats, setEditStats] = useState<{ attended: number; total: number } | null>(null)
   const [form, setForm] = useState({
     subject_name: '',
     color: COLOR_OPTIONS[0],
     initial_attended: 0,
     initial_missed: 0,
+    edit_attended: 0,
+    edit_total: 0,
   })
 
   useEffect(() => { fetchData() }, [])
@@ -45,6 +48,9 @@ export default function SubjectsPage() {
 
   const handleSubmit = async () => {
     if (!form.subject_name.trim()) return toast.error('Enter subject name')
+    if (editId && form.edit_attended > form.edit_total) {
+      return toast.error('Attended count cannot exceed total classes')
+    }
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -54,6 +60,68 @@ export default function SubjectsPage() {
         .update({ subject_name: form.subject_name, color: form.color })
         .eq('id', editId)
       if (error) { toast.error(error.message); setLoading(false); return }
+
+      // Handle attendance count corrections
+      const newAttended = Math.max(0, form.edit_attended)
+      const newTotal = Math.max(newAttended, form.edit_total)
+      const prevAttended = editStats?.attended ?? 0
+      const prevTotal = editStats?.total ?? 0
+
+      if (newAttended !== prevAttended || newTotal !== prevTotal) {
+        const { data: currentRecs } = await supabase
+          .from('attendance_records')
+          .select('id, date, status')
+          .eq('subject_id', editId)
+          .neq('status', 'cancelled')
+
+        const currPresent = (currentRecs || []).filter(r => r.status === 'present')
+        const currAbsent = (currentRecs || []).filter(r => r.status === 'absent')
+        const deltaPresent = newAttended - currPresent.length
+        const deltaAbsent = (newTotal - newAttended) - currAbsent.length
+
+        const usedDates = new Set((currentRecs || []).map(r => r.date as string))
+        const getFreeDate = (): string | null => {
+          const base = new Date('2010-01-01')
+          for (let i = 0; i < 36500; i++) {
+            const d = new Date(base)
+            d.setDate(d.getDate() + i)
+            const ds = d.toISOString().split('T')[0]
+            if (!usedDates.has(ds)) { usedDates.add(ds); return ds }
+          }
+          return null
+        }
+
+        if (deltaPresent > 0) {
+          const recs = []
+          for (let i = 0; i < deltaPresent; i++) {
+            const date = getFreeDate()
+            if (date) recs.push({ subject_id: editId, date, status: 'present' })
+          }
+          if (recs.length) await supabase.from('attendance_records').insert(recs)
+        } else if (deltaPresent < 0) {
+          const toDelete = [...currPresent]
+            .sort((a, b) => (a.date < b.date ? -1 : 1))
+            .slice(0, Math.abs(deltaPresent))
+            .map(r => r.id)
+          if (toDelete.length) await supabase.from('attendance_records').delete().in('id', toDelete)
+        }
+
+        if (deltaAbsent > 0) {
+          const recs = []
+          for (let i = 0; i < deltaAbsent; i++) {
+            const date = getFreeDate()
+            if (date) recs.push({ subject_id: editId, date, status: 'absent' })
+          }
+          if (recs.length) await supabase.from('attendance_records').insert(recs)
+        } else if (deltaAbsent < 0) {
+          const toDelete = [...currAbsent]
+            .sort((a, b) => (a.date < b.date ? -1 : 1))
+            .slice(0, Math.abs(deltaAbsent))
+            .map(r => r.id)
+          if (toDelete.length) await supabase.from('attendance_records').delete().in('id', toDelete)
+        }
+      }
+
       toast.success('Subject updated')
     } else {
       const { data: newSub, error } = await supabase
@@ -80,7 +148,8 @@ export default function SubjectsPage() {
       toast.success('Subject added!')
     }
 
-    setForm({ subject_name: '', color: COLOR_OPTIONS[0], initial_attended: 0, initial_missed: 0 })
+    setForm({ subject_name: '', color: COLOR_OPTIONS[0], initial_attended: 0, initial_missed: 0, edit_attended: 0, edit_total: 0 })
+    setEditStats(null)
     setShowForm(false)
     setEditId(null)
     fetchData()
@@ -96,7 +165,9 @@ export default function SubjectsPage() {
   }
 
   const openEdit = (sub: Subject) => {
-    setForm({ subject_name: sub.subject_name, color: sub.color, initial_attended: 0, initial_missed: 0 })
+    const { attended, total } = getSubjectStats(sub.id)
+    setEditStats({ attended, total })
+    setForm({ subject_name: sub.subject_name, color: sub.color, initial_attended: 0, initial_missed: 0, edit_attended: attended, edit_total: total })
     setEditId(sub.id)
     setShowForm(true)
   }
@@ -109,7 +180,7 @@ export default function SubjectsPage() {
           <p className="text-slate-500 text-xs sm:text-sm mt-0.5">Manage your enrolled subjects</p>
         </div>
         <button
-          onClick={() => { setShowForm(true); setEditId(null); setForm({ subject_name: '', color: COLOR_OPTIONS[0], initial_attended: 0, initial_missed: 0 }) }}
+          onClick={() => { setShowForm(true); setEditId(null); setEditStats(null); setForm({ subject_name: '', color: COLOR_OPTIONS[0], initial_attended: 0, initial_missed: 0, edit_attended: 0, edit_total: 0 }) }}
           className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-medium transition-all"
           style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', color: '#4ade80' }}
         >
@@ -137,7 +208,7 @@ export default function SubjectsPage() {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-white">{editId ? 'Edit Subject' : 'Add Subject'}</h2>
-                <button onClick={() => { setShowForm(false); setEditId(null) }}
+                <button onClick={() => { setShowForm(false); setEditId(null); setEditStats(null) }}
                   className="p-1.5 rounded-lg text-slate-500" style={{ background: 'rgba(255,255,255,0.05)' }}>
                   <X className="w-4 h-4" />
                 </button>
@@ -175,7 +246,7 @@ export default function SubjectsPage() {
                   </div>
                 </div>
 
-                {!editId && (
+                {!editId ? (
                   <>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -205,6 +276,50 @@ export default function SubjectsPage() {
                       </p>
                     )}
                   </>
+                ) : (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs text-slate-400">Attendance Count</label>
+                      {editStats && (
+                        <span className="text-xs font-mono" style={{ color: 'rgba(148,163,184,0.5)' }}>
+                          current: {editStats.attended}/{editStats.total}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-slate-400 mb-1.5 block">✅ Attended</label>
+                        <input
+                          type="number" min={0}
+                          value={form.edit_attended}
+                          onChange={e => setForm({ ...form, edit_attended: +e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl text-sm text-slate-200 outline-none font-mono"
+                          style={{ border: '1px solid rgba(74,222,128,0.2)', background: 'rgba(74,222,128,0.05)' }}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-slate-400 mb-1.5 block">📚 Total Classes</label>
+                        <input
+                          type="number" min={0}
+                          value={form.edit_total}
+                          onChange={e => setForm({ ...form, edit_total: +e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl text-sm text-slate-200 outline-none font-mono"
+                          style={{ border: '1px solid rgba(96,165,250,0.2)', background: 'rgba(96,165,250,0.05)' }}
+                        />
+                      </div>
+                    </div>
+                    {form.edit_attended > form.edit_total ? (
+                      <p className="text-xs text-red-400 mt-2">Attended can\'t exceed total classes</p>
+                    ) : (form.edit_attended !== (editStats?.attended ?? 0) || form.edit_total !== (editStats?.total ?? 0)) && (
+                      <p className="text-xs text-slate-500 mt-2 text-center">
+                        New: <span className="text-white font-mono font-semibold">{form.edit_attended}/{form.edit_total}</span>
+                        {' → '}
+                        <span style={{ color: getStatusColor(calcStatus(calcPercentage(form.edit_attended, form.edit_total))) }}>
+                          {calcPercentage(form.edit_attended, form.edit_total)}%
+                        </span>
+                      </p>
+                    )}
+                  </div>
                 )}
 
                 <button

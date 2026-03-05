@@ -12,10 +12,10 @@ import {
 } from 'lucide-react'
 
 const navItems = [
+  { label: 'Attendance', href: '/attendance', icon: ClipboardList },
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Subjects', href: '/subjects', icon: BookOpen },
   { label: 'Timetable', href: '/timetable', icon: Calendar },
-  { label: 'Attendance', href: '/attendance', icon: ClipboardList },
   { label: 'Simulator', href: '/simulator', icon: FlaskConical },
 ]
 

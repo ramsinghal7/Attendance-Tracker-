@@ -27,7 +27,7 @@ export default function LoginPage() {
         })
         if (error) throw error
         toast.success('Welcome back! 👋')
-        router.push('/dashboard')
+        router.push('/attendance')
         router.refresh()
       } else {
         const { data, error } = await supabase.auth.signUp({
